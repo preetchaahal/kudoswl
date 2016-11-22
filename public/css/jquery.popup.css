@@ -1,0 +1,14 @@
+body { overflow-x: hidden; }
+#netkevin-overlay { width:100%; height:100%; position:fixed;  _position:absolute; top:0; left:0; z-index:1001; background-color:#000000; overflow: hidden;  }
+#netkevin-popup { display: none; position:absolute; z-index:1002; }
+.netkevin-popup-1 {
+	font-size: 12px;
+	font-family: Arial, Helvetica, sans-serif;
+	padding: 25px 20px 20px 20px;
+	border: 1px solid #333;
+	background-color: #fff;
+	color: #333;
+	position: relative;
+}
+.netkevin-popup-1 p { margin: 0; padding: 0;}
+.netkevin-close { display: block; position: absolute; top: 3px; right: 5px; color: #cc0000; }

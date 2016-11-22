@@ -1,0 +1,350 @@
+<meta name="csrf_token" value="<?php echo e(csrf_token()); ?>">
+<style type="text/css">
+  /* search form styling */
+  .inline-search-form{
+		position: relative;
+	}
+	form .search-btn{
+	    font-size: 14px;
+	    background: none;
+	    padding: 10px;
+	    color: #ccc;
+	    height: 38px;
+	    outline: none;
+	    padding: 0;
+	    position: absolute;
+	    right: 20px;
+	    top: 1px;
+	}
+	/* ////form-styling ends */
+  article .post-meta{
+  	font-size: 1.2em;
+  }
+  .blog-post .commentlist li .description{
+  	min-height: 40px;
+  	height: auto;
+  }
+  .comments-link i{
+  	margin-right: 10px;
+  }
+  .like-thumb{
+  	color: rgb(193, 8, 65);
+  }
+  .comments-num{
+  	cursor: default;
+  }
+  .comment_comment{
+  	list-style: none;
+  	padding-left: 20%;
+  }
+  .remove-comment-btn:hover{
+  	text-decoration: none;
+  }
+  article .post-meta>span,
+  .comments-meta>span{
+  	margin-right: 10px;
+  }
+  aside.tags a{
+		margin: 2px;
+		display: inline-block !important;
+	}
+	.btn-sm{
+		margin: 2px;
+	}
+  </style>
+  <!-- //facebook share button -->
+	<div id="fb-root"></div>
+	<div id="fb-root"></div>
+	<script>(function(d, s, id) {
+	  var js, fjs = d.getElementsByTagName(s)[0];
+	  if (d.getElementById(id)) return;
+	  js = d.createElement(s); js.id = id;
+	  js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.5&appId=1676034339325749";
+	  fjs.parentNode.insertBefore(js, fjs);
+	}(document, 'script', 'facebook-jssdk'));</script>
+	<!-- //facebook share -->
+<?php
+	$title = @unserialize(htmlspecialchars_decode(stripslashes($post[0]->post_title)));
+	$content = @unserialize(htmlspecialchars_decode(stripslashes($post[0]->post_content)));
+?>
+<section id="main">
+  
+  <div class="container">
+  	
+  	<header class="page-header">
+	    <div class="container">
+	      <h4 class="title"><?php if($title) echo ucfirst($title[$lang_id-1]); else echo "Blog post"; ?></h4>
+	    </div>	
+  	</header>
+
+  	<div class="row">
+      <div class="content blog blog-post col-sm-9 col-md-9">
+		
+		<article class="post">
+		  <p class="post-meta"><span><i class="post-by fa fa-user"></i> <?php echo ucfirst($post[0]->post_author); ?></span><span><i class="post-by fa fa-calendar"></i> <?php echo date("F d".","." Y",strtotime($post[0]->post_created_at)); ?></span><?php
+							//fethcing tags
+							$post_tags = explode(',', $post[0]->post_tags);
+						?>
+						<span class="meta"><i class="fa fa-tags"></i> 
+							<?php 
+								$i=1; foreach($post_tags as $val){ 
+									if($val == '')
+										echo "No tags";
+									else{
+										echo '<a href="'.url().'/blog?searchTag='.ucfirst($val).'">'.$val.'</a>';
+										if($i < count($post_tags))
+											echo ", ";
+									}
+									$i++;
+								}//foreach ends 
+							?>
+						</span></p>
+		  <div class="entry-content">
+			
+			<?php if($content[$lang_id-1]) echo htmlspecialchars_decode($content[$lang_id-1]); ?>
+			
+			<div class="img-fluid-wrap">
+			<?php if($post[0]->post_files) {?><img src="<?php echo e(url()); ?><?php echo '/images/admin/blog/'.$post[0]->post_files; ?>" class="img-fluid"><?php } ?>
+		  	</div>
+		  </div>
+		  <footer>
+			<span class="autor-name"><i class="glyphicon glyphicon-user"></i> <?php echo ucfirst($post[0]->post_author); ?></span>,
+			<span class="time"><?php if($post[0]->post_created_at) echo date("F d".","." Y",strtotime($post[0]->post_created_at)); ?></span>
+			<?php
+				$qCat = unserialize($post[0]->cat_name);
+				$qCat = $qCat[$lang_id-1];
+
+				$qSubCat = unserialize($post[0]->subcat_name);
+				$qSubCat = $qSubCat[$lang_id-1];
+				if(isset($qCat)){
+					echo "<span>Posted in  <a class='btn btn-sm' href='blog.php?cat=".$qCat."'>".$qCat."</a>".(isset($qSubCat)? "<a class='btn btn-sm' href='blog.php?subcat=".$qSubCat."'>$qSubCat</a>" : "")."</span>";
+				}//end of if
+			?>
+			<!--<span class="separator">|</span>
+			<span class="meta">Posted in <a href="#">Sports</a>, <a href="#">Movies</a></span>-->
+			<span class="comments-link pull-right">
+			<?php 
+				//checking if the post is liked by the loggged in user
+				//fetching comment count and likes count
+				// 	$comments_count = $blog_obj->fetchCommentsCount($id);
+				// 	$likes_count = $blog_obj->fetchLikesCount($id); 
+				// if(isset($_SESSION['useruserid']))
+			?>
+			<div class="fb-share-button" data-href="http://winnerslearners.com/blog-view.php?id=<?php echo $post[0]->ID; ?>" data-layout="button_count"></div>
+			  <a <?php if($loggedin == 1) echo "href='#' class='likeBtn'"; else echo " disabled "; if($isPostLikedByLoggedInUser == 1 ) echo "data-like = '1'"; else echo "data-like= '0'"; ?>><i class="like-nums"><?php echo $likes_count; ?></i><i class="<?php if($isPostLikedByLoggedInUser == 1) echo 'like-thumb'; ?> glyphicon glyphicon-thumbs-up"></i><!--<span class="separator">|</span>--></a>
+			  <i class="comment-nums"><?php echo $comments_count; ?></i><i class="fa fa-comment"></i>
+			</span>
+		  </footer>
+		</article><!-- .post -->
+
+		<?php 
+			if( $loggedin == 1 ) { 
+				if($comments_count > 0){?>
+		<h3 class="title slim">Comments</h3>
+		<ul class="commentlist">
+		 	<?php foreach($postComments as $key=>$value) {?>
+		  	<li>
+			  	<?php 
+			  		//fetching comment avatar image
+			  		//$avatar = $blog_obj->fetchCommentAvatar($comment[$key]['comment_author_ID']);
+			  	?>
+			  	<input type="hidden" class="comment-id" name="comment-id-hidden" value="<?php echo $value['comments']->comment_ID; ?>"></input>
+				<img class="avatar" width="50" height="50" src="<?php echo e(url()); ?>/<?php echo "images/profile/".$value['comments']->avatar; ?>" alt="">
+				<div class="comments-meta">
+				  <span><i class="fa fa-user"></i> <?php echo $value['comments']->comment_author; ?></span>, 
+				  <span class="time"><i class="fa fa-calendar"></i> <?php echo date("F d, Y, h:m A",strtotime($value['comments']->comment_date)); ?></span>
+					<?php
+					if( isset($loggedInUserId) ):
+						
+						//allow delete if comment author same as loggedin user
+						if($value['comments']->comment_author_ID == $loggedInUserId){?>
+						<a href="<?php echo e(url()); ?>/delete_post_comment?id=<?php echo $loggedInUserId; ?>&type=blog-post&commentId=<?php echo $value['comments']->comment_ID; ?>" onclick="return confirm('Are you sure');" class="remove-comment-btn pull-right glyphicon glyphicon-remove"></a> 
+					<?php }//end of if
+						endif;
+					?>
+				</div>
+				<p><i class="fa fa-comment"></i> 
+				  <?php echo $value['comments']->comment_content; ?>
+				</p>
+				<div class="row">
+					<?php //checking for comments to a given comment 
+					// $comment_comment = $blog_obj->fetchAllComments($comment[$key]['comment_post_ID'], $comment[$key]['comment_ID'] );
+					if( count($value['comments_comments']) > 0 ){
+						echo "<ul class='comment_comment'>";
+						foreach ($value['comments_comments'] as $val) {
+						?>
+						<li>
+							<?php 
+								//fetching comment avatar image for comment replies
+				  				//$avatar = $blog_obj->fetchCommentAvatar($comment_comment[$key]['comment_author_ID']);
+				 			?>
+				 			<img class="avatar" width="50" height="50" src="<?php echo e(url()); ?><?php echo "images/profile/".$val->avatar; ?>" alt="">
+							<div class="comments-meta">
+							  <span><i class="fa fa-user"></i> <?php //echo $val->comment_author; ?></span>, 
+							  <span class="time"><i class="fa fa-calendar"></i> <?php echo date("F d, Y, h:m A",strtotime($val->comment_date)); ?></span>
+							</div>
+							<p><i class="fa fa-comment"></i> 
+							  <?php echo $val->comment_content; ?>
+							</p>
+						</li>
+						<hr>
+						<?php }
+						 	echo "</ul>"; 
+						} ?>
+					<div style="clear: both"></div>
+					<div class="col-xs-10 col-xs-push-2">
+						<a href="#" class="btn reply-btn btn-sm">Reply</a>
+				  	</div>
+			  	</div><!-- ///row -->
+		  	</li>
+		 <?php } ?>
+		</ul><!-- ////commentlist --><?php } ?>
+		<div class="clearfix"></div>
+		<h3 class="title slim">Leave a Comment</h3>
+
+		<form class="comments-form" method="post" action="<?php echo e(url()); ?>/add_comment_to_blog_post">
+		  <input type="hidden" name="commentedBy" value="<?php echo $loggedInUserId; ?>" ></input>
+		  <input type="hidden" name="commentPostId" value="<?php echo $post[0]->ID; ?>" ></input>
+		  <input type="hidden" name="commentCommentId" value="0">
+		  <label>Comment: </label>
+		  <div class="row">
+			<div class="comment-box col-sm-10 col-md-10">
+			  <textarea class="form-control" name="commentContent"></textarea>
+			  <!--<i>Note: HTML is not translated!</i>-->
+			</div>
+		  </div>
+
+		  <div class="clearfix"></div>
+		  <div class="button-set">
+			<!--<span class="required pull-right"><b>*</b> Required Field</span>-->
+			<button class="btn btn-default" type="submit" name="commentBtn">Submit</button>
+		  </div>
+		</form><?php } ?>
+		<br>
+      </div><!-- .content -->
+	  
+      <div id="sidebar" class="sidebar col-sm-3 col-md-3">
+		
+      	<aside class="widget list">
+		  <header class="title-box">
+			<h3 class="title">Search Blog</h3>
+		  </header>
+		  <div>
+		  	<form class="inline-search-form" name="search-news" class="" method="GET" action="<?php echo e(url()); ?>/blog">
+	        	<div class="form-group">
+	          		<input class="search-string form-control" type="text" placeholder="Enter search text" name="blog_search" maxlength="15">
+	        		<button class="search-btn" value="Search" name="blog_search_btn"><span class="glyphicon glyphicon-arrow-right"></span></button>
+	        	</div>
+      		</form>
+		  </div>
+		  <!--<form action="blog.php">
+		  		<input type="text" name="blog_search" placeholder="Enter search text" class="form-control" />
+		  		<input type="submit" name="blog_search_btn" value="Search" class="btn btn-sm" />
+		  </form>-->
+		</aside><!-- .list -->
+
+		
+		<!-- //categories for blog and tags-->
+		<?php echo $__env->make('pages.includes.blog-sidebar-nav', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+		<!-- //blog categories and tags ends here -->
+		
+	  </div><!-- .sidebar -->
+    </div>
+  </div><!-- .container -->
+
+	
+</section>
+<script language="javascript">
+	
+	$(document).ready(function(){
+
+		$.ajaxSetup({
+        	headers: { 'X-CSRF-TOKEN': $('meta[name="csrf_token"]').attr('content') }
+    	});
+
+		var urlForQuery;
+		$('.likeBtn').click(function(e){
+			e.preventDefault();
+			var $thisBtn = $(this);
+			//console.log("data like =0"+ $thisBtn.attr('data-like'));
+			if ( $thisBtn.attr('data-like') == '0' )
+				urlForQuery = 'likePost';
+			else
+				urlForQuery = 'unlikePost';
+			$.ajax({
+				url: urlForQuery,
+				type: 'POST',
+				data: { 
+						like: '1',
+						postId: '<?php echo $postId; ?>',
+						userId: '<?php echo $loggedInUserId; ?>'
+				}
+			})
+			.done(function(data){
+				
+				//console.log("ajax call success data=> "+data);
+				if(data != 3)//successfully liked
+				{
+					var likesValue = $('.like-nums').text();
+					likesValue++;
+					$('.like-nums').text(likesValue);
+					$('.likeBtn .glyphicon-thumbs-up').addClass('like-thumb');
+					//update btn data-attr to '1' to send unlike request if pressed again
+					$thisBtn.attr('data-like', '1');
+				}
+				else if(data == 3)//updating the like count, unliking the post
+				{
+					var likesValue = $('.like-nums').text();
+					likesValue--;
+					$('.like-nums').text(likesValue);
+					$('.likeBtn .glyphicon-thumbs-up').removeClass('like-thumb');	
+					
+
+					//update btn data-attr to '1' to send unlike request if pressed again
+					$thisBtn.attr('data-like', '0');
+				}
+			})
+			.error(function(event, jqxhr, settings, thrownError){
+				console.log("Ajax req error =>"+ event +" jqxhr =>"+ jqxhr+ " settings"+ settings+"thrownError"+ thrownError);
+			});
+		});
+		
+		// script for replying to a comment
+		$('.reply-btn').on('click', function(e){
+			e.preventDefault();
+			var id = $(this).parent().parent().parent().find('input[type="hidden"][name="comment-id-hidden"]').val();
+			//console.log($(this).parent().parent().find('.comment-id').val());
+			//var id=$(this).parent().find('input:hidden').val();
+			$(this).parent().append("<div class='row comment-reply-box'><div class='col-sm-6 col-sm-push-1'><form action='#' method='post'><input type='hidden' class='comment-id' value='"+id+"'><input type='text' class='form-control' required><button type='button' class='btn btn-sm'>Submit</button></form></div></div>");
+
+			$('.comment-reply-box div form button').on('click',function(e){
+				var form_data = {
+					'commentCommentId' 	: $(this).parent().find('input:hidden').val(),
+					'commentContent'    : $(this).parent().find('input:text').val(),
+					'commentPostId'	 	: "<?php echo $post[0]->ID; ?>",
+					'commentedBy'  	 	: "<?php echo $loggedInUserId; ?>"
+				};
+				$.ajax({
+					url: "<?php echo url(); ?>/add_comment_to_blog_post",
+					statusCode: {
+						404: function(){
+							alert("Unable to post comment right now!");
+						}
+					},
+					type: "POST",
+					data: form_data
+				})
+				.done(function(data){
+					//console.log(data);
+					//$(location).reload();
+					//do some stuff here to add new comment at appropriate place
+					location.reload();
+				})
+				.error(function(eData){
+					console.log("Error "+ eData);
+				});
+			});
+		});
+		
+	});
+</script>
